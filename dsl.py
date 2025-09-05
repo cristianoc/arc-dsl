@@ -548,7 +548,24 @@ def mpapply(
     b: Tuple
 ) -> Tuple:
     """ apply function on two vectors and merge """
-    return merge(papply(function, a, b))
+    # Ensure deterministic pairing when inputs are not tuples (e.g., frozensets)
+    at = a if isinstance(a, tuple) else tuple(a)
+    if isinstance(b, tuple):
+        bt = b
+    else:
+        try:
+            bt = tuple(sorted(b, key=len))
+        except Exception:
+            bt = tuple(b)
+    containers = papply(function, at, bt)
+    # Sort inner containers deterministically by descending index (i, j) when applicable
+    def sort_items(c):
+        try:
+            return tuple(sorted(c, key=lambda e: (e[1][0], e[1][1]), reverse=True))
+        except Exception:
+            return tuple(c)
+    normalized = tuple(sort_items(c) for c in containers)
+    return merge(normalized)
 
 
 def prapply(
@@ -558,6 +575,50 @@ def prapply(
 ) -> FrozenSet:
     """ apply function on cartesian product """
     return frozenset(function(i, j) for j in b for i in a)
+
+# --- Explicit type casts (no-op at runtime, useful for documentation and tooling) ---
+
+def cast_Grid(x: Any) -> Grid:
+    return x  # type: ignore
+
+def cast_Object(x: Any) -> Object:
+    return x  # type: ignore
+
+def cast_Indices(x: Any) -> Indices:
+    return x  # type: ignore
+
+def cast_Patch(x: Any) -> Patch:
+    return x  # type: ignore
+
+def cast_Container(x: Any) -> Container:
+    return x  # type: ignore
+
+def cast_ContainerContainer(x: Any) -> ContainerContainer:
+    return x  # type: ignore
+
+def cast_Callable(x: Any) -> Callable:
+    return x  # type: ignore
+
+def cast_Tuple(x: Any) -> Tuple:
+    return x  # type: ignore
+
+def cast_Integer(x: Any) -> Integer:
+    return x  # type: ignore
+
+def cast_IntegerTuple(x: Any) -> IntegerTuple:
+    return x  # type: ignore
+
+def cast_Element(x: Any) -> Element:
+    return x  # type: ignore
+
+def cast_Piece(x: Any) -> Piece:
+    return x  # type: ignore
+
+def cast_IntegerSet(x: Any) -> IntegerSet:
+    return x  # type: ignore
+
+def cast_Objects(x: Any) -> Objects:
+    return x  # type: ignore
 
 
 def mostcolor(
