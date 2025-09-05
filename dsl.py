@@ -537,7 +537,7 @@ V = TypeVar('V')
 
 def mapply(
     function: Callable,
-    container: ContainerContainer
+    container: Container
 ) -> FrozenSet:
     """ apply and merge """
     return merge(apply(function, container))
