@@ -1,5 +1,4 @@
 from arc_types import *
-from typing import TypeVar, overload
 
 
 def identity(
@@ -140,11 +139,9 @@ def difference(
     return type(a)(e for e in a if e not in b)
 
 
-S = TypeVar('S')
-
 def dedupe(
-    tup: Tuple[S, ...]
-) -> Tuple[S, ...]:
+    tup: Tuple
+) -> Tuple:
     """ remove duplicates """
     return tuple(e for i, e in enumerate(tup) if tup.index(e) == i)
 
@@ -179,9 +176,6 @@ def size(
     """ cardinality """
     return len(container)
 
-
-T = TypeVar('T')
-V = TypeVar('V')
 
 def merge(
     containers: ContainerContainer
@@ -434,8 +428,6 @@ def pair(
     return tuple(zip(a, b))
 
 
-U = TypeVar('U')
-
 def branch(
     condition: Boolean,
     a: Any,
@@ -533,11 +525,9 @@ def rapply(
     return type(functions)(function(value) for function in functions)
 
 
-V = TypeVar('V')
-
 def mapply(
     function: Callable,
-    container: Container
+    container: ContainerContainer
 ) -> FrozenSet:
     """ apply and merge """
     return merge(apply(function, container))
@@ -558,24 +548,7 @@ def mpapply(
     b: Tuple
 ) -> Tuple:
     """ apply function on two vectors and merge """
-    # Ensure deterministic pairing when inputs are not tuples (e.g., frozensets)
-    at = a if isinstance(a, tuple) else tuple(a)
-    if isinstance(b, tuple):
-        bt = b
-    else:
-        try:
-            bt = tuple(sorted(b, key=len))
-        except Exception:
-            bt = tuple(b)
-    containers = papply(function, at, bt)
-    # Sort inner containers deterministically by descending index (i, j) when applicable
-    def sort_items(c):
-        try:
-            return tuple(sorted(c, key=lambda e: (e[1][0], e[1][1]), reverse=True))
-        except Exception:
-            return tuple(c)
-    normalized = tuple(sort_items(c) for c in containers)
-    return merge(normalized)
+    return merge(papply(function, a, b))
 
 
 def prapply(
@@ -585,50 +558,6 @@ def prapply(
 ) -> FrozenSet:
     """ apply function on cartesian product """
     return frozenset(function(i, j) for j in b for i in a)
-
-# --- Explicit type casts (no-op at runtime, useful for documentation and tooling) ---
-
-def cast_Grid(x: Any) -> Grid:
-    return x  # type: ignore
-
-def cast_Object(x: Any) -> Object:
-    return x  # type: ignore
-
-def cast_Indices(x: Any) -> Indices:
-    return x  # type: ignore
-
-def cast_Patch(x: Any) -> Patch:
-    return x  # type: ignore
-
-def cast_Container(x: Any) -> Container:
-    return x  # type: ignore
-
-def cast_ContainerContainer(x: Any) -> ContainerContainer:
-    return x  # type: ignore
-
-def cast_Callable(x: Any) -> Callable:
-    return x  # type: ignore
-
-def cast_Tuple(x: Any) -> Tuple:
-    return x  # type: ignore
-
-def cast_Integer(x: Any) -> Integer:
-    return x  # type: ignore
-
-def cast_IntegerTuple(x: Any) -> IntegerTuple:
-    return x  # type: ignore
-
-def cast_Element(x: Any) -> Element:
-    return x  # type: ignore
-
-def cast_Piece(x: Any) -> Piece:
-    return x  # type: ignore
-
-def cast_IntegerSet(x: Any) -> IntegerSet:
-    return x  # type: ignore
-
-def cast_Objects(x: Any) -> Objects:
-    return x  # type: ignore
 
 
 def mostcolor(
@@ -988,7 +917,7 @@ def palette(
 
 def numcolors(
     element: Element
-) -> Integer:
+) -> IntegerSet:
     """ number of colors occurring in object or grid """
     return len(palette(element))
 
