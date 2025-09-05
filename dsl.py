@@ -1,3 +1,4 @@
+from typing import Any, Callable, FrozenSet, Tuple, Optional, cast
 from arc_types import *
 
 
@@ -19,7 +20,10 @@ def add(
         return (a[0] + b[0], a[1] + b[1])
     elif isinstance(a, int) and isinstance(b, tuple):
         return (a + b[0], a + b[1])
-    return (a[0] + b, a[1] + b)
+    elif isinstance(a, tuple) and isinstance(b, int):
+        return (a[0] + b, a[1] + b)
+    # unreachable if inputs follow Numerical spec
+    return (a, b)  # type: ignore[return-value]
 
 
 def subtract(
@@ -33,7 +37,9 @@ def subtract(
         return (a[0] - b[0], a[1] - b[1])
     elif isinstance(a, int) and isinstance(b, tuple):
         return (a - b[0], a - b[1])
-    return (a[0] - b, a[1] - b)
+    elif isinstance(a, tuple) and isinstance(b, int):
+        return (a[0] - b, a[1] - b)
+    return (0, 0)  # type: ignore[return-value]
 
 
 def multiply(
@@ -47,7 +53,9 @@ def multiply(
         return (a[0] * b[0], a[1] * b[1])
     elif isinstance(a, int) and isinstance(b, tuple):
         return (a * b[0], a * b[1])
-    return (a[0] * b, a[1] * b)
+    elif isinstance(a, tuple) and isinstance(b, int):
+        return (a[0] * b, a[1] * b)
+    return (0, 0)  # type: ignore[return-value]
     
 
 def divide(
@@ -61,7 +69,9 @@ def divide(
         return (a[0] // b[0], a[1] // b[1])
     elif isinstance(a, int) and isinstance(b, tuple):
         return (a // b[0], a // b[1])
-    return (a[0] // b, a[1] // b)
+    elif isinstance(a, tuple) and isinstance(b, int):
+        return (a[0] // b, a[1] // b)
+    return (0, 0)  # type: ignore[return-value]
 
 
 def invert(
@@ -120,7 +130,12 @@ def combine(
     b: Container
 ) -> Container:
     """ union """
-    return type(a)((*a, *b))
+    if isinstance(a, tuple) and isinstance(b, tuple):
+        return a + b
+    if isinstance(a, frozenset) and isinstance(b, frozenset):
+        return a | b
+    # Fallback to tuple concatenation for mixed types
+    return tuple(a) + tuple(b)
 
 
 def intersection(
@@ -148,7 +163,7 @@ def dedupe(
 
 def order(
     container: Container,
-    compfunc: Callable
+    compfunc: Callable[[Any], Any]
 ) -> Tuple:
     """ order container by custom key """
     return tuple(sorted(container, key=compfunc))
@@ -181,7 +196,9 @@ def merge(
     containers: ContainerContainer
 ) -> Container:
     """ merging """
-    return type(containers)(e for c in containers for e in c)
+    if isinstance(containers, frozenset):
+        return frozenset(e for c in containers for e in c)
+    return tuple(e for c in containers for e in c)
 
 
 def maximum(
@@ -234,14 +251,16 @@ def mostcommon(
     container: Container
 ) -> Any:
     """ most common item """
-    return max(set(container), key=container.count)
+    seq = tuple(container)
+    return max(set(seq), key=seq.count)
 
 
 def leastcommon(
     container: Container
 ) -> Any:
     """ least common item """
-    return min(set(container), key=container.count)
+    seq = tuple(container)
+    return min(set(seq), key=seq.count)
 
 
 def initset(
@@ -337,9 +356,12 @@ def sfilter(
 def mfilter(
     container: Container,
     function: Callable
-) -> FrozenSet:
-    """ filter and merge """
-    return merge(sfilter(container, function))
+) -> Container:
+    """ filter and merge; preserves container flavor (tuple/frozenset) """
+    filtered = sfilter(container, function)
+    if isinstance(filtered, frozenset):
+        return frozenset(e for c in filtered for e in c)
+    return tuple(e for c in filtered for e in c)
 
 
 def extract(
@@ -528,9 +550,12 @@ def rapply(
 def mapply(
     function: Callable,
     container: ContainerContainer
-) -> FrozenSet:
-    """ apply and merge """
-    return merge(apply(function, container))
+) -> Container:
+    """ apply and merge; preserves container flavor (tuple/frozenset) """
+    applied = apply(function, container)
+    if isinstance(applied, frozenset):
+        return frozenset(e for c in applied for e in c)
+    return tuple(e for c in applied for e in c)
 
 
 def papply(
@@ -546,9 +571,15 @@ def mpapply(
     function: Callable,
     a: Tuple,
     b: Tuple
-) -> Tuple:
-    """ apply function on two vectors and merge """
-    return merge(papply(function, a, b))
+) -> Container:
+    """ apply function on two vectors and merge/concat depending on result type """
+    results = tuple(function(i, j) for i, j in zip(a, b))
+    if not results:
+        return tuple()
+    first = results[0]
+    if isinstance(first, frozenset):
+        return frozenset(e for r in results for e in r)
+    return tuple(e for r in results for e in r)
 
 
 def prapply(
@@ -657,28 +688,32 @@ def ulcorner(
     patch: Patch
 ) -> IntegerTuple:
     """ index of upper left corner """
-    return tuple(map(min, zip(*toindices(patch))))
+    idx = toindices(patch)
+    return (min(i for i, _ in idx), min(j for _, j in idx))
 
 
 def urcorner(
     patch: Patch
 ) -> IntegerTuple:
     """ index of upper right corner """
-    return tuple(map(lambda ix: {0: min, 1: max}[ix[0]](ix[1]), enumerate(zip(*toindices(patch)))))
+    idx = toindices(patch)
+    return (min(i for i, _ in idx), max(j for _, j in idx))
 
 
 def llcorner(
     patch: Patch
 ) -> IntegerTuple:
     """ index of lower left corner """
-    return tuple(map(lambda ix: {0: max, 1: min}[ix[0]](ix[1]), enumerate(zip(*toindices(patch)))))
+    idx = toindices(patch)
+    return (max(i for i, _ in idx), min(j for _, j in idx))
 
 
 def lrcorner(
     patch: Patch
 ) -> IntegerTuple:
     """ index of lower right corner """
-    return tuple(map(max, zip(*toindices(patch))))
+    idx = toindices(patch)
+    return (max(i for i, _ in idx), max(j for _, j in idx))
 
 
 def crop(
@@ -696,9 +731,11 @@ def toindices(
     """ indices of object cells """
     if len(patch) == 0:
         return frozenset()
-    if isinstance(next(iter(patch))[1], tuple):
-        return frozenset(index for value, index in patch)
-    return patch
+    first = next(iter(patch))
+    if isinstance(first, tuple) and len(first) == 2 and isinstance(first[1], tuple):
+        obj = cast(Object, patch)
+        return frozenset(index for _, index in obj)
+    return cast(Indices, patch)
 
 
 def recolor(
@@ -717,9 +754,12 @@ def shift(
     if len(patch) == 0:
         return patch
     di, dj = directions
-    if isinstance(next(iter(patch))[1], tuple):
-        return frozenset((value, (i + di, j + dj)) for value, (i, j) in patch)
-    return frozenset((i + di, j + dj) for i, j in patch)
+    first = next(iter(patch))
+    if isinstance(first, tuple) and len(first) == 2 and isinstance(first[1], tuple):
+        obj = cast(Object, patch)
+        return frozenset((value, (i + di, j + dj)) for value, (i, j) in obj)
+    idx = cast(Indices, patch)
+    return frozenset((i + di, j + dj) for i, j in idx)
 
 
 def normalize(
@@ -903,7 +943,11 @@ def centerofmass(
     patch: Patch
 ) -> IntegerTuple:
     """ center of mass """
-    return tuple(map(lambda x: sum(x) // len(patch), zip(*toindices(patch))))
+    idx = toindices(patch)
+    n = len(idx) if len(idx) > 0 else 1
+    si = sum(i for i, _ in idx)
+    sj = sum(j for _, j in idx)
+    return (si // n, sj // n)
 
 
 def palette(
@@ -917,7 +961,7 @@ def palette(
 
 def numcolors(
     element: Element
-) -> IntegerSet:
+) -> Integer:
     """ number of colors occurring in object or grid """
     return len(palette(element))
 
@@ -949,7 +993,7 @@ def rot90(
     grid: Grid
 ) -> Grid:
     """ quarter clockwise rotation """
-    return tuple(row for row in zip(*grid[::-1]))
+    return tuple(tuple(row) for row in zip(*grid[::-1]))
 
 
 def rot180(
@@ -973,9 +1017,12 @@ def hmirror(
     if isinstance(piece, tuple):
         return piece[::-1]
     d = ulcorner(piece)[0] + lrcorner(piece)[0]
-    if isinstance(next(iter(piece))[1], tuple):
-        return frozenset((v, (d - i, j)) for v, (i, j) in piece)
-    return frozenset((d - i, j) for i, j in piece)
+    first = next(iter(piece))
+    if isinstance(first, tuple) and len(first) == 2 and isinstance(first[1], tuple):
+        obj = cast(Object, piece)
+        return frozenset((v, (d - i, j)) for v, (i, j) in obj)
+    idx = cast(Indices, piece)
+    return frozenset((d - i, j) for i, j in idx)
 
 
 def vmirror(
@@ -985,9 +1032,12 @@ def vmirror(
     if isinstance(piece, tuple):
         return tuple(row[::-1] for row in piece)
     d = ulcorner(piece)[1] + lrcorner(piece)[1]
-    if isinstance(next(iter(piece))[1], tuple):
-        return frozenset((v, (i, d - j)) for v, (i, j) in piece)
-    return frozenset((i, d - j) for i, j in piece)
+    first = next(iter(piece))
+    if isinstance(first, tuple) and len(first) == 2 and isinstance(first[1], tuple):
+        obj = cast(Object, piece)
+        return frozenset((v, (i, d - j)) for v, (i, j) in obj)
+    idx = cast(Indices, piece)
+    return frozenset((i, d - j) for i, j in idx)
 
 
 def dmirror(
@@ -995,11 +1045,14 @@ def dmirror(
 ) -> Piece:
     """ mirroring along diagonal """
     if isinstance(piece, tuple):
-        return tuple(zip(*piece))
+        return tuple(tuple(row) for row in zip(*piece))
     a, b = ulcorner(piece)
-    if isinstance(next(iter(piece))[1], tuple):
-        return frozenset((v, (j - b + a, i - a + b)) for v, (i, j) in piece)
-    return frozenset((j - b + a, i - a + b) for i, j in piece)
+    first = next(iter(piece))
+    if isinstance(first, tuple) and len(first) == 2 and isinstance(first[1], tuple):
+        obj = cast(Object, piece)
+        return frozenset((v, (j - b + a, i - a + b)) for v, (i, j) in obj)
+    idx = cast(Indices, piece)
+    return frozenset((j - b + a, i - a + b) for i, j in idx)
 
 
 def cmirror(
@@ -1007,7 +1060,7 @@ def cmirror(
 ) -> Piece:
     """ mirroring along counterdiagonal """
     if isinstance(piece, tuple):
-        return tuple(zip(*(r[::-1] for r in piece[::-1])))
+        return tuple(tuple(row) for row in zip(*(r[::-1] for r in piece[::-1])))
     return vmirror(dmirror(vmirror(piece)))
 
 
@@ -1074,13 +1127,13 @@ def hupscale(
     factor: Integer
 ) -> Grid:
     """ upscale grid horizontally """
-    g = tuple()
+    rows = []
     for row in grid:
-        r = tuple()
+        new_row: list[int] = []
         for value in row:
-            r = r + tuple(value for num in range(factor))
-        g = g + (r,)
-    return g
+            new_row.extend([value] * factor)
+        rows.append(tuple(new_row))
+    return tuple(rows)
 
 
 def vupscale(
@@ -1088,10 +1141,7 @@ def vupscale(
     factor: Integer
 ) -> Grid:
     """ upscale grid vertically """
-    g = tuple()
-    for row in grid:
-        g = g + tuple(row for num in range(factor))
-    return g
+    return tuple(tuple(row) for row in grid for _ in range(factor))
 
 
 def upscale(
@@ -1100,25 +1150,26 @@ def upscale(
 ) -> Element:
     """ upscale object or grid """
     if isinstance(element, tuple):
-        g = tuple()
+        rows = []
         for row in element:
-            upscaled_row = tuple()
+            expanded: list[int] = []
             for value in row:
-                upscaled_row = upscaled_row + tuple(value for num in range(factor))
-            g = g + tuple(upscaled_row for num in range(factor))
-        return g
+                expanded.extend([value] * factor)
+            for _ in range(factor):
+                rows.append(tuple(expanded))
+        return tuple(rows)
     else:
         if len(element) == 0:
             return frozenset()
         di_inv, dj_inv = ulcorner(element)
         di, dj = (-di_inv, -dj_inv)
-        normed_obj = shift(element, (di, dj))
+        normed_obj = cast(Object, shift(element, (di, dj)))
         o = set()
         for value, (i, j) in normed_obj:
             for io in range(factor):
                 for jo in range(factor):
                     o.add((value, (i * factor + io, j * factor + jo)))
-        return shift(frozenset(o), (di_inv, dj_inv))
+        return cast(Object, shift(frozenset(o), (di_inv, dj_inv)))
 
 
 def downscale(
@@ -1126,20 +1177,7 @@ def downscale(
     factor: Integer
 ) -> Grid:
     """ downscale grid """
-    h, w = len(grid), len(grid[0])
-    g = tuple()
-    for i in range(h):
-        r = tuple()
-        for j in range(w):
-            if j % factor == 0:
-                r = r + (grid[i][j],)
-        g = g + (r, )
-    h = len(g)
-    dsg = tuple()
-    for i in range(h):
-        if i % factor == 0:
-            dsg = dsg + (g[i],)
-    return dsg
+    return tuple(tuple(row[::factor]) for row in grid[::factor])
 
 
 def hconcat(
@@ -1193,15 +1231,14 @@ def cellwise(
 ) -> Grid:
     """ cellwise match of two grids """
     h, w = len(a), len(a[0])
-    resulting_grid = tuple()
+    rows = []
     for i in range(h):
-        row = tuple()
+        row_vals: list[int] = []
         for j in range(w):
-            a_value = a[i][j]
-            value = a_value if a_value == b[i][j] else fallback
-            row = row + (value,)
-        resulting_grid = resulting_grid + (row, )
-    return resulting_grid
+            av = a[i][j]
+            row_vals.append(av if av == b[i][j] else fallback)
+        rows.append(tuple(row_vals))
+    return tuple(rows)
 
 
 def replace(
@@ -1244,12 +1281,13 @@ def position(
         return (1, 1 if ja < jb else -1)
     elif ia > ib:
         return (-1, 1 if ja < jb else -1)
+    return (0, 0)
 
 
 def index(
     grid: Grid,
     loc: IntegerTuple
-) -> Integer:
+) -> Optional[Integer]:
     """ color at location """
     i, j = loc
     h, w = len(grid), len(grid[0])
@@ -1316,7 +1354,7 @@ def move(
     offset: IntegerTuple
 ) -> Grid:
     """ move object on grid """
-    return paint(cover(grid, obj), shift(obj, offset))
+    return paint(cover(grid, obj), cast(Object, shift(obj, offset)))
 
 
 def tophalf(
@@ -1435,7 +1473,7 @@ def box(
 ) -> Indices:
     """ outline of patch """
     if len(patch) == 0:
-        return patch
+        return frozenset()
     ai, aj = ulcorner(patch)
     bi, bj = lrcorner(patch)
     si, sj = min(ai, bi), min(aj, bj)
@@ -1466,7 +1504,7 @@ def occurrences(
     for i in range(h2):
         for j in range(w2):
             occurs = True
-            for v, (a, b) in shift(normed, (i, j)):
+            for v, (a, b) in cast(Object, shift(normed, (i, j))):
                 if not (0 <= a < h and 0 <= b < w and grid[a][b] == v):
                     occurs = False
                     break
@@ -1503,7 +1541,7 @@ def hperiod(
     normalized = normalize(obj)
     w = width(normalized)
     for p in range(1, w):
-        offsetted = shift(normalized, (0, -p))
+        offsetted = cast(Object, shift(normalized, (0, -p)))
         pruned = frozenset({(c, (i, j)) for c, (i, j) in offsetted if j >= 0})
         if pruned.issubset(normalized):
             return p
@@ -1517,7 +1555,7 @@ def vperiod(
     normalized = normalize(obj)
     h = height(normalized)
     for p in range(1, h):
-        offsetted = shift(normalized, (-p, 0))
+        offsetted = cast(Object, shift(normalized, (-p, 0)))
         pruned = frozenset({(c, (i, j)) for c, (i, j) in offsetted if i >= 0})
         if pruned.issubset(normalized):
             return p
