@@ -51,3 +51,11 @@ def solve_5521c0d9(I):
 - `shifter`: a function that takes an object and shifts it as much upwards as it is high; the result of calling the `fork` primitive with `outer=shift`, `a=identity` and `b=offset_getter`
 - `shifted`: all the objects shifted up by their heights, as a single object, obtained by appling the constructed function on the set of objects and merging the results; the result of calling the `mapply` primitive on `function=shifter` and `container=objs`
 - `O` the desired output grid, obtained by painting the resulting object onto the grid `empty_grid` where the original objects were removed from; the result of calling the `paint` primitive on `grid=empty_grid` and `obj=shifted`
+
+
+## Typing (mypy)
+
+This repo includes a stub `dsl.pyi` so that solver code type checks cleanly with mypy.
+
+- Run type checks: `make typecheck`
+- The stub provides overloads for core DSL combinators (apply/merge/mapply/papply/mpapply/prapply) and helpers used by `solvers.py`.
