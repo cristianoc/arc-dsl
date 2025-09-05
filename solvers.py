@@ -257,8 +257,8 @@ def solve_662c240a(I):
 def solve_42a50994(I):
     x1 = objects(I, T, T, T)
     x2 = sizefilter(x1, ONE)
-    x3 = merge(cast_ContainerContainer(x2))
-    O = cover(I, cast_Patch(x3))
+    x3 = merge(x2)
+    O = cover(I, x3)
     return O
 
 def solve_56ff96f3(I):
@@ -369,8 +369,8 @@ def solve_0d3d703e(I):
 def solve_3618c87e(I):
     x1 = objects(I, T, F, T)
     x2 = sizefilter(x1, ONE)
-    x3 = merge(cast_ContainerContainer(x2))
-    O = move(I, cast_Object(x3), TWO_BY_ZERO)
+    x3 = merge(x2)
+    O = move(I, x3, TWO_BY_ZERO)
     return O
 
 def solve_1c786137(I):
@@ -432,8 +432,8 @@ def solve_aedd82e4(I):
     x1 = objects(I, T, F, F)
     x2 = colorfilter(x1, TWO)
     x3 = sizefilter(x2, ONE)
-    x4 = merge(cast_ContainerContainer(x3))
-    O = fill(I, ONE, cast_Patch(x4))
+    x4 = merge(x3)
+    O = fill(I, ONE, x4)
     return O
 
 def solve_bb43febb(I):
@@ -1031,7 +1031,7 @@ def solve_25d8a9c8(I):
     x2 = objects(I, T, F, F)
     x3 = sizefilter(x2, THREE)
     x4 = mfilter(x3, hline)
-    x5 = toindices(cast_Patch(x4))
+    x5 = toindices(x4)
     x6 = difference(x1, x5)
     x7 = fill(I, FIVE, x5)
     O = fill(x7, ZERO, cast_Patch(x6))
@@ -1228,10 +1228,10 @@ def solve_e8593010(I):
     x1 = objects(I, T, F, T)
     x2 = sizefilter(x1, ONE)
     x3 = sizefilter(x1, TWO)
-    x4 = merge(cast_ContainerContainer(x2))
-    x5 = fill(I, THREE, cast_Patch(x4))
-    x6 = merge(cast_ContainerContainer(x3))
-    x7 = fill(x5, TWO, cast_Patch(x6))
+    x4 = merge(x2)
+    x5 = fill(I, THREE, x4)
+    x6 = merge(x3)
+    x7 = fill(x5, TWO, x6)
     O = replace(x7, ZERO, ONE)
     return O
 
@@ -1657,9 +1657,9 @@ def solve_6455b5f5(I):
     x4 = valmin(x1, size)
     x5 = sizefilter(x2, x4)
     x6 = recolor(ONE, x3)
-    x7 = merge(cast_ContainerContainer(x5))
+    x7 = merge(x5)
     x8 = paint(I, x6)
-    O = fill(x8, EIGHT, cast_Patch(x7))
+    O = fill(x8, EIGHT, x7)
     return O
 
 def solve_b8cdaf2b(I):
@@ -1716,7 +1716,7 @@ def solve_d90796e8(I):
     x3 = lbind(contained, TWO)
     x4 = compose(x3, palette)
     x5 = mfilter(x2, x4)
-    x6 = cover(I, cast_Patch(x5))
+    x6 = cover(I, x5)
     x7 = matcher(first, THREE)
     x8 = sfilter(x5, x7)
     O = fill(x6, EIGHT, cast_Patch(x8))
@@ -2169,8 +2169,8 @@ def solve_6c434453(I):
     x2 = sizefilter(x1, EIGHT)
     x3 = dneighbors(UNITY)
     x4 = insert(UNITY, x3)
-    x5 = merge(cast_ContainerContainer(x2))
-    x6 = cover(I, cast_Patch(x5))
+    x5 = merge(x2)
+    x6 = cover(I, x5)
     x7 = apply(ulcorner, x2)
     x8 = lbind(shift, x4)
     x9 = mapply(x8, x7)
@@ -2798,8 +2798,8 @@ def solve_1a07d186(I):
     x10 = fork(gravitate, identity, x9)
     x11 = fork(shift, identity, x10)
     x12 = mapply(x11, x7)
-    x13 = merge(cast_ContainerContainer(x2))
-    x14 = cover(I, cast_Patch(x13))
+    x13 = merge(x2)
+    x14 = cover(I, x13)
     O = paint(x14, cast_Object(x12))
     return O
 
@@ -2815,9 +2815,9 @@ def solve_d687bc17(I):
     x9 = chain(first, x8, color)
     x10 = fork(gravitate, identity, x9)
     x11 = fork(shift, identity, x10)
-    x12 = merge(cast_ContainerContainer(x2))
+    x12 = merge(x2)
     x13 = mapply(x11, x7)
-    x14 = cover(I, cast_Patch(x12))
+    x14 = cover(I, x12)
     O = paint(x14, cast_Object(x13))
     return O
 
@@ -3991,8 +3991,8 @@ def solve_d89b689b(I):
     x7 = compose(x5, x6)
     x8 = fork(recolor, color, x7)
     x9 = mapply(x8, x3)
-    x10 = merge(cast_ContainerContainer(x3))
-    x11 = cover(I, cast_Patch(x10))
+    x10 = merge(x3)
+    x11 = cover(I, x10)
     O = paint(x11, cast_Object(x9))
     return O
 
@@ -4424,8 +4424,8 @@ def solve_952a094c(I):
     x9 = compose(color, x8)
     x10 = fork(astuple, x9, identity)
     x11 = apply(x10, x5)
-    x12 = merge(cast_ContainerContainer(x2))
-    x13 = cover(I, cast_Patch(x12))
+    x12 = merge(x2)
+    x13 = cover(I, x12)
     O = paint(x13, cast_Object(x11))
     return O
 
