@@ -1,4 +1,5 @@
 from arc_types import *
+from typing import TypeVar, overload
 
 
 def identity(
@@ -139,9 +140,11 @@ def difference(
     return type(a)(e for e in a if e not in b)
 
 
+S = TypeVar('S')
+
 def dedupe(
-    tup: Tuple
-) -> Tuple:
+    tup: Tuple[S, ...]
+) -> Tuple[S, ...]:
     """ remove duplicates """
     return tuple(e for i, e in enumerate(tup) if tup.index(e) == i)
 
@@ -176,6 +179,9 @@ def size(
     """ cardinality """
     return len(container)
 
+
+T = TypeVar('T')
+V = TypeVar('V')
 
 def merge(
     containers: ContainerContainer
@@ -428,6 +434,8 @@ def pair(
     return tuple(zip(a, b))
 
 
+U = TypeVar('U')
+
 def branch(
     condition: Boolean,
     a: Any,
@@ -524,6 +532,8 @@ def rapply(
     """ apply each function in container to value """
     return type(functions)(function(value) for function in functions)
 
+
+V = TypeVar('V')
 
 def mapply(
     function: Callable,
@@ -978,7 +988,7 @@ def palette(
 
 def numcolors(
     element: Element
-) -> IntegerSet:
+) -> Integer:
     """ number of colors occurring in object or grid """
     return len(palette(element))
 

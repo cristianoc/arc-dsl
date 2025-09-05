@@ -41,6 +41,22 @@ def ann_to_tags(ann) -> typing.Set[str]:
         for arg in typing.get_args(ann):
             tags |= ann_to_tags(arg)
         return tags
+    # typing.FrozenSet[...] recognition
+    if origin is frozenset:
+        args = typing.get_args(ann)
+        if args:
+            inner = ann_to_tags(args[0])
+            if "Integer" in inner:
+                return {"IntegerSet"}
+            if "IntegerTuple" in inner:
+                return {"Indices"}
+            if "Cell" in inner:
+                return {"Object"}
+            if "Object" in inner:
+                return {"Objects"}
+            if "Indices" in inner:
+                return {"IndicesSet"}
+        return {"Container"}
     # Direct alias equality
     for name, alias in ALIAS_MAP.items():
         if ann == alias:
@@ -119,6 +135,8 @@ def is_compatible(actual: typing.Set[str], expected: typing.Set[str]) -> bool:
         return True
     if "Container" in expected and (actual & CONTAINER_LIKE):
         return True
+    if "ContainerContainer" in expected and (actual & {"Objects", "TupleTuple", "ContainerContainer"}):
+        return True
     if "Callable" in expected and "Callable" in actual:
         return True
     return False
@@ -155,6 +173,25 @@ def expr_type(node: ast.AST, tenv: TypeEnv) -> typing.Set[str]:
             fname = node.func.id
             # DSL function
             if fname in DSL_SIGS:
+                # Treat explicit casts specially to avoid losing precision
+                if fname.startswith('cast_'):
+                    # compute inner argument type
+                    inner_tags = expr_type(node.args[0], tenv) if node.args else {"Unknown"}
+                    target = fname[len('cast_'):]
+                    # For broad casts, keep inner detail as well
+                    if target in ("Container", "ContainerContainer"):
+                        return inner_tags | {target}
+                    if target == "Patch":
+                        # Accept either patch representation for downstream checks
+                        return inner_tags | {"Indices", "Object"}
+                    if target == "Element":
+                        # Element is Grid or Object
+                        return inner_tags | {"Grid", "Object"}
+                    if target == "Piece":
+                        # Piece is Grid or Patch (Object/Indices)
+                        return inner_tags | {"Grid", "Indices", "Object"}
+                    # Otherwise, force the target alias tag
+                    return {target}
                 sig = DSL_SIGS[fname]
                 # positional args first
                 arg_types = [expr_type(arg, tenv) for arg in node.args]
@@ -176,6 +213,70 @@ def expr_type(node: ast.AST, tenv: TypeEnv) -> typing.Set[str]:
                     actual = arg_types[i]
                     if not is_compatible(actual, expected):
                         raise TypeErrorInfo(f"{fname}: argument {i} has type {sorted(actual)} but expected {sorted(expected)}")
+                # Specialized return inference for some higher-order/combinators
+                # merge: refine based on container type
+                if fname == "merge":
+                    atags = arg_types[0] if arg_types else {"Unknown"}
+                    if "Objects" in atags:
+                        return {"Object"}
+                    if "IndicesSet" in atags:
+                        return {"Indices"}
+                    if "TupleTuple" in atags:
+                        return {"Tuple"}
+                    return {"Container"}
+                # combine: union preserves element type when both match
+                if fname == "combine" and len(arg_types) >= 2:
+                    a1, a2 = arg_types[0], arg_types[1]
+                    for tag in ("Indices", "Object", "Tuple"):
+                        if tag in a1 and tag in a2:
+                            return {tag}
+                    return {"Container"}
+                # prapply: container of results from pairwise function
+                if fname == "prapply" and node.args:
+                    ftag = set()
+                    if isinstance(node.args[0], ast.Name):
+                        inner_name = node.args[0].id
+                        if inner_name in DSL_SIGS:
+                            ftag = DSL_SIGS[inner_name]["return"]
+                    if "Indices" in ftag:
+                        return {"IndicesSet"}
+                    if "Object" in ftag:
+                        return {"Objects"}
+                    return {"Container"}
+                # mfilter: merge of filtered containers
+                if fname == "mfilter" and arg_types:
+                    ct = arg_types[0]
+                    if "Objects" in ct:
+                        return {"Object"}
+                    if "IndicesSet" in ct:
+                        return {"Indices"}
+                    return {"Container"}
+                # mapply/mpapply: refine based on mapped function's return
+                if fname in ("mapply", "mpapply"):
+                    # mapply(func, container)
+                    # mpapply(func, a, b)
+                    ftag = set()
+                    if arg_types and isinstance(node.args[0], ast.Name):
+                        inner_name = node.args[0].id
+                        if inner_name in DSL_SIGS:
+                            ftag = DSL_SIGS[inner_name]["return"]
+                    if "Indices" in ftag:
+                        return {"Indices"}
+                    if "Object" in ftag:
+                        return {"Object"}
+                    return {"Container"}
+                # branch: approximate as union of second and third arg types
+                if fname == "branch" and len(arg_types) >= 3:
+                    return arg_types[1] | arg_types[2]
+                # first/last/extract on known containers
+                if fname in ("first", "last", "extract") and arg_types:
+                    ct = arg_types[0]
+                    if "Objects" in ct:
+                        return {"Object"}
+                    if "IndicesSet" in ct:
+                        return {"Indices"}
+                    if "IntegerSet" in ct:
+                        return {"Integer"}
                 return sig["return"]
             else:
                 # calling a value (likely a Callable)
