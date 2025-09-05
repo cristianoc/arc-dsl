@@ -42,6 +42,9 @@ def try_remove_in_call_args(func_node: ast.FunctionDef) -> Tuple[ast.FunctionDef
     for stmt in fn.body:
         # Transformer for a single statement, capturing env and accumulating edits
         class ArgStripper(ast.NodeTransformer):
+            def __init__(self):
+                super().__init__()
+                self.changed = False
             def visit_Call(self, node: ast.Call):
                 # Process children first
                 node = self.generic_visit(node)
@@ -52,8 +55,7 @@ def try_remove_in_call_args(func_node: ast.FunctionDef) -> Tuple[ast.FunctionDef
                         itags = expr_type(inner, env)
                         if 'Callable' in itags:
                             node.func = inner
-                            # mark change
-                            setattr(node, '_changed_by_stripper', True)
+                            self.changed = True
 
                 # For positional args: cast_* wrappers that are statically compatible
                 if isinstance(node.func, ast.Name) and node.func.id in DSL_SIGS:
@@ -68,13 +70,13 @@ def try_remove_in_call_args(func_node: ast.FunctionDef) -> Tuple[ast.FunctionDef
                             actual = expr_type(inner, env)
                             if is_compatible(actual, expected):
                                 args[i] = inner
-                                # mark change on node
-                                setattr(node, '_changed_by_stripper', True)
+                                self.changed = True
                     node.args = args
                 return node
 
         # Apply transformer to this statement
-        new_stmt = ArgStripper().visit(copy.deepcopy(stmt))
+        stripper = ArgStripper()
+        new_stmt = stripper.visit(copy.deepcopy(stmt))
         ast.fix_missing_locations(new_stmt)
 
         # Proactively verify function still type-checks after this one-statement edit
@@ -84,8 +86,7 @@ def try_remove_in_call_args(func_node: ast.FunctionDef) -> Tuple[ast.FunctionDef
         if ok:
             # Accept the new statement and update env accordingly
             new_body.append(new_stmt)
-            # If this statement or any nested calls were changed, reflect in flag
-            if hasattr(new_stmt, '_changed_by_stripper'):
+            if stripper.changed:
                 changed_any = True
             # Update env with this statement's assignments
             if isinstance(new_stmt, ast.Assign) and len(new_stmt.targets) == 1 and isinstance(new_stmt.targets[0], ast.Name):
