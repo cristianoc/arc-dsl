@@ -31,7 +31,7 @@ def main():
 
     ast = lambda g: tuple(tuple(r) for r in g)
 
-    for t in tasks:
+    for i, t in enumerate(tasks, 1):
         base = t.stem  # e.g., task123
         py = subdir / f'{base}.py'
         if not py.exists():
@@ -63,6 +63,10 @@ def main():
             solved += 1
         else:
             mismatches += 1
+
+        # Periodic progress update (every 20 tasks)
+        if i % 20 == 0 or i == total:
+            print(f'Progress: {i}/{total} solved={solved} errors={errors} mismatches={mismatches}')
 
     print(f'Competition eval: total={total} solved={solved} errors={errors} mismatches={mismatches}')
     if failures:
