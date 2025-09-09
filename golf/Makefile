@@ -13,5 +13,4 @@ package:
 	@python $(TOOLS)/package.py $(SUBDIR) submission.zip
 
 eval:
-	@python $(TOOLS)/evaluate.py $(SUBDIR) ../data/arc_agi_1
-
+	@python $(TOOLS)/eval_competition.py $(SUBDIR) ../data/google-code-golf-2025

@@ -147,7 +147,20 @@ def valmin(container, compfunc):
     return compfunc(min(container, key=compfunc, default=0))
 
 def argmax(container, compfunc):
-    return max(container, key=compfunc)
+    # Deterministic tie-breaker using ulcorner when scores tie
+    try:
+        return max(
+            container,
+            key=lambda e: (
+                compfunc(e),
+                (
+                    -min((i for i, _ in toindices(e)), default=0),
+                    -min((j for _, j in toindices(e)), default=0),
+                ),
+            ),
+        )
+    except Exception:
+        return max(container, key=compfunc)
 
 def argmin(container, compfunc):
     return min(container, key=compfunc)
@@ -843,7 +856,7 @@ def solve_e40b9e2f(I):
     x2 = neighbors(ORIGIN)
     x3 = mapply(neighbors, x2)
     x4 = first(x1)
-    x5 = lbind(intersection, x4)
+    x5 = compose(size, lbind(intersection, x4))
     x6 = compose(hmirror, vmirror)
     x7 = x6(x4)
     x8 = lbind(shift, x7)
@@ -852,7 +865,7 @@ def solve_e40b9e2f(I):
     x11 = paint(I, x10)
     x12 = objects(x11, F, T, T)
     x13 = first(x12)
-    x14 = compose(size, x5)
+    x14 = x5
     x15 = compose(vmirror, dmirror)
     x16 = x15(x13)
     x17 = lbind(shift, x16)

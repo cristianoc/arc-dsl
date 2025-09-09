@@ -348,18 +348,26 @@ def ofcolor(grid, value):
 
 def ulcorner(patch):
     idx = toindices(patch)
+    if not idx:
+        return (0, 0)
     return (min((i for i, _ in idx)), min((j for _, j in idx)))
 
 def urcorner(patch):
     idx = toindices(patch)
+    if not idx:
+        return (0, 0)
     return (min((i for i, _ in idx)), max((j for _, j in idx)))
 
 def llcorner(patch):
     idx = toindices(patch)
+    if not idx:
+        return (0, 0)
     return (max((i for i, _ in idx)), min((j for _, j in idx)))
 
 def lrcorner(patch):
     idx = toindices(patch)
+    if not idx:
+        return (0, 0)
     return (max((i for i, _ in idx)), max((j for _, j in idx)))
 
 def crop(grid, start, dims):
