@@ -24,7 +24,8 @@ def validate_file(path: Path):
     else:
         body = m.group(1).strip('\n')
         for ln in [ln for ln in body.split('\n') if ln.strip()]:
-            if not re.match(r'\s*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[A-Za-z_][A-Za-z0-9_]*\(.*\)\s*$', ln):
+            # Allow assignments of the form: x = func(...), or x = y
+            if not re.match(r'\s*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[A-Za-z_][A-Za-z0-9_]*(\(.*\))?\s*$', ln):
                 issues.append('non-conforming line: ' + ln.strip())
                 break
     return defs[0] if defs else None, issues
@@ -57,4 +58,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
