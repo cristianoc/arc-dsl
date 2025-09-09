@@ -1,4 +1,4 @@
-.PHONY: validate smoke package eval submission report report-file
+.PHONY: validate smoke package eval submission report report-file import-check
 
 SUBDIR:=submission
 TOOLS:=tools
@@ -24,3 +24,6 @@ report:
 
 report-file:
 	@python $(TOOLS)/report.py $(SUBDIR) $(REPORT)
+
+import-check:
+	@python $(TOOLS)/check_imports.py $(SUBDIR)
