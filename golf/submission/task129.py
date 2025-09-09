@@ -1,8 +1,7 @@
-def solve_5582e5ca(I):
-    flat=[v for r in I for v in r]
-    c=max(set(flat), key=flat.count)
-    O=tuple((c,)*3 for _ in range(3))
-    return O
+p=lambda j:[[max(sum(j,[]),key=sum(j,[]).count)]*3]*3
 
-p=solve_5582e5ca
+def solve_5582e5ca(I):
+    L=[list(r) for r in I]
+    R=p(L)
+    return tuple(tuple(r) for r in R)
 
