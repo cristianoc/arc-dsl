@@ -17,7 +17,7 @@ eval:
 
 REPORT?=report.txt
 
-submission: validate package report-file
+submission: import-check validate package report-file
 
 report:
 	@python $(TOOLS)/report.py $(SUBDIR)

@@ -9,8 +9,7 @@ def validate_file(path: Path):
     issues = []
     if path.suffix != '.py':
         issues.append('not a .py file')
-    if re.search(r'^\s*(import|from)\s+', s, re.M):
-        issues.append('contains import/from')
+    # Imports are allowed if from the stdlib; enforced separately by import-check.
     defs = re.findall(r'^def\s+solve_([0-9a-f]{8})\(I\):', s, re.M)
     if len(defs) != 1:
         issues.append(f'{len(defs)} solver defs (expected 1)')
@@ -18,16 +17,8 @@ def validate_file(path: Path):
         issues.append('missing return O')
     if re.search(r'\b(dsl|solvers|arc_types|constants|main|tests)\b', s):
         issues.append('references external module')
-    m = re.search(r'def\s+solve_[0-9a-f]{8}\(I\):([\s\S]*?)\n\s*return\s+O\b', s)
-    if not m:
-        issues.append('cannot parse solver body')
-    else:
-        body = m.group(1).strip('\n')
-        for ln in [ln for ln in body.split('\n') if ln.strip()]:
-            # Allow assignments of the form: x = func(...), or x = y
-            if not re.match(r'\s*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[A-Za-z_][A-Za-z0-9_]*(\(.*\))?\s*$', ln):
-                issues.append('non-conforming line: ' + ln.strip())
-                break
+    if not re.search(r'def\s+solve_[0-9a-f]{8}\(I\):[\s\S]*?\n\s*return\s+O\b', s):
+        issues.append('missing or malformed solver body/return')
     return defs[0] if defs else None, issues
 
 

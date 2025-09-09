@@ -85,7 +85,7 @@ task083.py	25476 bytes	1 points
 task084.py	25612 bytes	1 points
 task085.py	25940 bytes	1 points
 task086.py	26151 bytes	1 points
-task087.py	25405 bytes	1 points
+task087.py	104 bytes	2396 points
 task088.py	25615 bytes	1 points
 task089.py	26405 bytes	1 points
 task090.py	25680 bytes	1 points
@@ -114,7 +114,7 @@ task112.py	25835 bytes	1 points
 task113.py	25542 bytes	1 points
 task114.py	25853 bytes	1 points
 task115.py	25610 bytes	1 points
-task116.py	25430 bytes	1 points
+task116.py	71 bytes	2429 points
 task117.py	26285 bytes	1 points
 task118.py	26574 bytes	1 points
 task119.py	26233 bytes	1 points
@@ -127,18 +127,18 @@ task125.py	25556 bytes	1 points
 task126.py	25589 bytes	1 points
 task127.py	25692 bytes	1 points
 task128.py	25577 bytes	1 points
-task129.py	25444 bytes	1 points
-task130.py	25448 bytes	1 points
+task129.py	165 bytes	2335 points
+task130.py	157 bytes	2343 points
 task131.py	25821 bytes	1 points
 task132.py	25496 bytes	1 points
 task133.py	26240 bytes	1 points
 task134.py	25642 bytes	1 points
-task135.py	25444 bytes	1 points
+task135.py	97 bytes	2403 points
 task136.py	25589 bytes	1 points
 task137.py	25786 bytes	1 points
 task138.py	25891 bytes	1 points
 task139.py	25470 bytes	1 points
-task140.py	25405 bytes	1 points
+task140.py	104 bytes	2396 points
 task141.py	25646 bytes	1 points
 task142.py	25476 bytes	1 points
 task143.py	25722 bytes	1 points
@@ -148,12 +148,12 @@ task146.py	25507 bytes	1 points
 task147.py	25551 bytes	1 points
 task148.py	25915 bytes	1 points
 task149.py	25873 bytes	1 points
-task150.py	25406 bytes	1 points
+task150.py	98 bytes	2402 points
 task151.py	25574 bytes	1 points
 task152.py	25476 bytes	1 points
 task153.py	25607 bytes	1 points
 task154.py	26444 bytes	1 points
-task155.py	25406 bytes	1 points
+task155.py	69 bytes	2431 points
 task156.py	25617 bytes	1 points
 task157.py	26375 bytes	1 points
 task158.py	26139 bytes	1 points
@@ -162,7 +162,7 @@ task160.py	25647 bytes	1 points
 task161.py	25736 bytes	1 points
 task162.py	25801 bytes	1 points
 task163.py	26281 bytes	1 points
-task164.py	25430 bytes	1 points
+task164.py	107 bytes	2393 points
 task165.py	25884 bytes	1 points
 task166.py	25579 bytes	1 points
 task167.py	25641 bytes	1 points
@@ -170,14 +170,14 @@ task168.py	25829 bytes	1 points
 task169.py	25610 bytes	1 points
 task170.py	25661 bytes	1 points
 task171.py	25518 bytes	1 points
-task172.py	25430 bytes	1 points
+task172.py	71 bytes	2429 points
 task173.py	26115 bytes	1 points
 task174.py	25616 bytes	1 points
 task175.py	25626 bytes	1 points
 task176.py	25750 bytes	1 points
 task177.py	25479 bytes	1 points
 task178.py	25644 bytes	1 points
-task179.py	25406 bytes	1 points
+task179.py	98 bytes	2402 points
 task180.py	25755 bytes	1 points
 task181.py	25668 bytes	1 points
 task182.py	25852 bytes	1 points
@@ -221,7 +221,7 @@ task219.py	25910 bytes	1 points
 task220.py	25639 bytes	1 points
 task221.py	25905 bytes	1 points
 task222.py	25764 bytes	1 points
-task223.py	25413 bytes	1 points
+task223.py	135 bytes	2365 points
 task224.py	25522 bytes	1 points
 task225.py	25731 bytes	1 points
 task226.py	25776 bytes	1 points
@@ -239,7 +239,7 @@ task237.py	26063 bytes	1 points
 task238.py	26026 bytes	1 points
 task239.py	25801 bytes	1 points
 task240.py	26533 bytes	1 points
-task241.py	25406 bytes	1 points
+task241.py	98 bytes	2402 points
 task242.py	25457 bytes	1 points
 task243.py	25573 bytes	1 points
 task244.py	25511 bytes	1 points
@@ -247,7 +247,7 @@ task245.py	25582 bytes	1 points
 task246.py	25891 bytes	1 points
 task247.py	25640 bytes	1 points
 task248.py	25930 bytes	1 points
-task249.py	25409 bytes	1 points
+task249.py	99 bytes	2401 points
 task250.py	25676 bytes	1 points
 task251.py	25553 bytes	1 points
 task252.py	25645 bytes	1 points
@@ -274,7 +274,7 @@ task272.py	25519 bytes	1 points
 task273.py	25693 bytes	1 points
 task274.py	25894 bytes	1 points
 task275.py	25724 bytes	1 points
-task276.py	25416 bytes	1 points
+task276.py	114 bytes	2386 points
 task277.py	25607 bytes	1 points
 task278.py	25500 bytes	1 points
 task279.py	25639 bytes	1 points
@@ -305,11 +305,11 @@ task303.py	25453 bytes	1 points
 task304.py	25636 bytes	1 points
 task305.py	25789 bytes	1 points
 task306.py	25645 bytes	1 points
-task307.py	25411 bytes	1 points
+task307.py	135 bytes	2365 points
 task308.py	25657 bytes	1 points
-task309.py	25419 bytes	1 points
+task309.py	114 bytes	2386 points
 task310.py	25457 bytes	1 points
-task311.py	25430 bytes	1 points
+task311.py	107 bytes	2393 points
 task312.py	25558 bytes	1 points
 task313.py	25929 bytes	1 points
 task314.py	25848 bytes	1 points
@@ -324,7 +324,7 @@ task322.py	25552 bytes	1 points
 task323.py	26021 bytes	1 points
 task324.py	26277 bytes	1 points
 task325.py	25543 bytes	1 points
-task326.py	25423 bytes	1 points
+task326.py	96 bytes	2404 points
 task327.py	25607 bytes	1 points
 task328.py	26448 bytes	1 points
 task329.py	25551 bytes	1 points
@@ -335,7 +335,7 @@ task333.py	25768 bytes	1 points
 task334.py	25682 bytes	1 points
 task335.py	25647 bytes	1 points
 task336.py	25601 bytes	1 points
-task337.py	25418 bytes	1 points
+task337.py	129 bytes	2371 points
 task338.py	25590 bytes	1 points
 task339.py	25523 bytes	1 points
 task340.py	25818 bytes	1 points
@@ -378,7 +378,7 @@ task376.py	25645 bytes	1 points
 task377.py	25609 bytes	1 points
 task378.py	25892 bytes	1 points
 task379.py	25922 bytes	1 points
-task380.py	25405 bytes	1 points
+task380.py	104 bytes	2396 points
 task381.py	25791 bytes	1 points
 task382.py	26674 bytes	1 points
 task383.py	26196 bytes	1 points
@@ -400,5 +400,5 @@ task398.py	25674 bytes	1 points
 task399.py	25640 bytes	1 points
 task400.py	25578 bytes	1 points
 ---
-Files: 400  min: 25405  max: 27206  avg: 25725 bytes
-Estimated total score: 400
+Files: 400  min: 69  max: 27206  avg: 24396 bytes
+Estimated total score: 50607
