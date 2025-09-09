@@ -47,7 +47,8 @@ def main():
         data = json.loads(t.read_text())
         ok = True
         try:
-            for e in data['train'] + data['test']:
+            extra = data.get('arc-gen', [])
+            for e in data['train'] + data['test'] + extra:
                 I = ast(e['input'])
                 O = ast(e['output'])
                 P = solver(I)
@@ -72,4 +73,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
